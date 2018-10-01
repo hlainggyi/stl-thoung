@@ -210,7 +210,6 @@ export default {
         .where("queryDay", "==", new Date().getDate())
         .onSnapshot(querySnapshot =>{
           const incomes = []
-          // console.log(querySnapshot)
           querySnapshot.forEach((doc)=>{
             incomes.push(doc.data())
           })
@@ -222,7 +221,6 @@ export default {
         .where("queryDay", "==", this.date.getDate())
         .onSnapshot(querySnapshot =>{
           const expenses = []
-          // console.log(querySnapshot)
           querySnapshot.forEach((doc)=>{
             expenses.push(doc.data())
           })
@@ -231,10 +229,8 @@ export default {
 
       db.collection('incomes')
         .where("monthId", "==", queryMonth)
-        // .where("queryDay", "==", new Date().getDate())
         .onSnapshot(querySnapshot =>{
           const incomes = []
-          // console.log(querySnapshot)
           querySnapshot.forEach((doc)=>{
             incomes.push(doc.data())
           })
@@ -243,10 +239,8 @@ export default {
 
       db.collection('expenses')
         .where("monthId", "==", queryMonth)
-        // .where("queryDay", "==", this.date.getDate())
         .onSnapshot(querySnapshot =>{
           const expenses = []
-          // console.log(querySnapshot)
           querySnapshot.forEach((doc)=>{
             expenses.push(doc.data())
           })
@@ -254,11 +248,8 @@ export default {
         }),
 
       db.collection('incomes')
-        // .where("monthId", "==", queryMonth)
-        // .where("queryDay", "==", new Date().getDate())
         .onSnapshot(querySnapshot =>{
           const incomes = []
-          // console.log(querySnapshot)
           querySnapshot.forEach((doc)=>{
             incomes.push(doc.data())
           })
@@ -266,11 +257,8 @@ export default {
         }),
 
       db.collection('expenses')
-        // .where("monthId", "==", queryMonth)
-        // .where("queryDay", "==", this.date.getDate())
         .onSnapshot(querySnapshot =>{
           const expenses = []
-          // console.log(querySnapshot)
           querySnapshot.forEach((doc)=>{
             expenses.push(doc.data())
           })
@@ -279,10 +267,8 @@ export default {
 
       db.collection('incomes')
         .where("userId", "==", "PgQihX7GpDW2GMvyjg6k3moG3ez1")
-        // .where("queryDay", "==", new Date().getDate())
         .onSnapshot(querySnapshot =>{
           const incomes = []
-          // console.log(querySnapshot)
           querySnapshot.forEach((doc)=>{
             incomes.push(doc.data())
           })
@@ -291,10 +277,8 @@ export default {
 
       db.collection('expenses')
         .where("userId", "==", "PgQihX7GpDW2GMvyjg6k3moG3ez1")
-        // .where("queryDay", "==", this.date.getDate())
         .onSnapshot(querySnapshot =>{
           const expenses = []
-          // console.log(querySnapshot)
           querySnapshot.forEach((doc)=>{
             expenses.push(doc.data())
           })
@@ -303,10 +287,8 @@ export default {
 
       db.collection('incomes')
         .where("userId", "==", "hJe9hA6AQ2heNUrEb3ng4ILIn2H3")
-        // .where("queryDay", "==", new Date().getDate())
         .onSnapshot(querySnapshot =>{
           const incomes = []
-          // console.log(querySnapshot)
           querySnapshot.forEach((doc)=>{
             incomes.push(doc.data())
           })
@@ -315,10 +297,8 @@ export default {
 
       db.collection('expenses')
         .where("userId", "==", "hJe9hA6AQ2heNUrEb3ng4ILIn2H3")
-        // .where("queryDay", "==", this.date.getDate())
         .onSnapshot(querySnapshot =>{
           const expenses = []
-          // console.log(querySnapshot)
           querySnapshot.forEach((doc)=>{
             expenses.push(doc.data())
           })

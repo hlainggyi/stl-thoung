@@ -1,5 +1,4 @@
 <template>
-  <!-- <v-ons-page> -->
     <v-ons-card>
       <v-ons-card-header>
         <span class="left-title"> Thoun ({{ date | moment('MMM - YYYY') }})</span>
@@ -27,7 +26,6 @@
         </v-ons-list>
       </v-ons-card-content>
     </v-ons-card>
-  <!-- </v-ons-page> -->
 </template>
 
 <script>

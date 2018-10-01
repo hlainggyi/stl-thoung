@@ -4,7 +4,7 @@
       <img :src="imageUrl">
     </div>
 
-    <v-ons-list-title>Access</v-ons-list-title>
+    <v-ons-list-title>Categories</v-ons-list-title>
     <v-ons-list>
       <v-ons-list-item v-for="(item, index) in access" :key="item.title"
         :modifier="md ? 'nodivider' : ''"
@@ -22,7 +22,7 @@
       </v-ons-list-item>
     </v-ons-list>
 
-    <v-ons-list-title>Links</v-ons-list-title>
+    <v-ons-list-title>Setting</v-ons-list-title>
     <v-ons-list>
       <v-ons-list-item @click="profile(animation)">
         <div class="left">
@@ -97,8 +97,8 @@ export default {
       animation: 'default',
       access: [
         {
-          title: 'Account',
-          icon: 'ion-cash, material:md-cash'
+          title: 'Home',
+          icon: 'ion-home, material:md-home'
         },
         {
           title: 'Income',

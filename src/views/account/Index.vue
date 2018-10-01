@@ -10,12 +10,10 @@
         @click="dialogVisible = true">
       <v-ons-icon icon="md-plus"></v-ons-icon>
     </v-ons-fab>
-    <!-- Components -->
 
     <v-ons-dialog
       :visible.sync="dialogVisible"
     >
-      <!-- Optional page. This could contain a Navigator as well. -->
       <create-account  v-on:close="dialogVisible = false"></create-account>
     </v-ons-dialog>
   </v-ons-page>
