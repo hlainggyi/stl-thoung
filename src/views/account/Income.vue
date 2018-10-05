@@ -1,6 +1,14 @@
-<template lang="html">
+ff<template lang="html">
   <v-ons-page>
-      <v-ons-list>
+      <v-ons-list class="calendar">
+        <v-ons-list-item>
+          <v-date-picker mode='single' v-model='selectDate'>
+            <b-field slot-scope='props'>
+              <b-input type='text' icon='calendar' :value='props.inputValue' @change.native='props.updateValue($event.target.value)' expanded>
+              </b-input>
+            </b-field>
+          </v-date-picker>
+        </v-ons-list-item>
         <v-ons-list-header>
           {{ selectDate | moment('DD - MMM - YYYY') }}
         </v-ons-list-header>
@@ -16,7 +24,7 @@
             </v-ons-row>
           </div>
           <div class="right" v-if="income.userId == currentUser.uid">
-            <v-ons-icon icon="md-edit" @click="editIncome(income)"></v-ons-icon>
+            <v-ons-icon icon="md-edit" @click="editIncome(animation, income)"></v-ons-icon>
           </div>
         </v-ons-list-item>
         <v-ons-list-item>
@@ -36,10 +44,25 @@
         </v-ons-list-item>
       </v-ons-list>
       <hr>
-      <v-ons-list>
+      <v-ons-list style="padding-bottom: 80px;">
         <v-ons-list-header>
           {{ selectDate | moment('YYYY - MMMM') }}
         </v-ons-list-header>
+        <v-ons-list-item v-for="incomeTotal in incomeTotals" :key="incomeTotal.name" v-if="incomeTotals[0].title != ''">
+          <div class="center">
+            <v-ons-row>
+              <v-ons-col>
+                {{ incomeTotal.title }}
+              </v-ons-col>
+              <v-ons-col width="100px" style="text-align: right; padding-right:5px">
+                <span>{{ incomeTotal.incomes }}</span>
+              </v-ons-col>
+            </v-ons-row>
+          </div>
+          <div class="right">
+            <v-ons-icon icon="md-eye" @click="viewTitle(animation, incomeTotal.title, selectDate)"></v-ons-icon>
+          </div>
+        </v-ons-list-item>
         <v-ons-list-item>
           <div class="center">
             <v-ons-row>
@@ -60,25 +83,9 @@
           position='bottom right'
           modifier='mini'
           class="fab-btn"
-          @click="dialogVisible = true">
+          @click="create(animation)">
         <v-ons-icon icon="md-plus"></v-ons-icon>
       </v-ons-fab>
-
-      <!-- Add  -->
-      <v-ons-dialog
-        :visible.sync="dialogVisible"
-      >
-        <!-- Optional page. This could contain a Navigator as well. -->
-        <create-account  v-on:close="dialogVisible = false"></create-account>
-      </v-ons-dialog>
-
-      <!-- Edit -->
-      <v-ons-dialog
-        :visible.sync="dialogVisibleEdit"
-      >
-        <!-- Optional page. This could contain a Navigator as well. -->
-        <edit-account :editDate="editDate" :typeTitle="'Income'" :accountData="editIncomeData" v-on:close="dialogVisibleEdit = false"></edit-account>
-      </v-ons-dialog>
   </v-ons-page>
 </template>
 
@@ -87,20 +94,23 @@ import { mapState } from 'vuex'
 import {db} from '@/firebaseConfig'
 import createAccount from '@/views/account/Create.vue'
 import editAccount from '@/views/account/Edit.vue'
+import ShowTitle from '@/views/account/ShowTitle.vue'
+import Create from '@/views/account/Create.vue'
+import Edit from '@/views/account/Edit.vue'
 export default {
   components: { createAccount, editAccount },
   data () {
     return {
-      myDayDate: new Date(Date.now()).getDate(),
-      myMonth: new Date(Date.now()).getMonth(),
-      myYear: new Date(Date.now()).getFullYear(),
+      animation: 'default',
+      date: new Date(Date.now()),
       selectDate: new Date(Date.now()),
       incomes: [],
       monthlyIncomes: [],
-      editIncomeData: '',
-      editDate: {date:''},
-      dialogVisible: false,
-      dialogVisibleEdit: false
+      incomeTotals: [{
+        title: '',
+        incomes: []
+      }],
+      cashTitleTotals: []
     }
   },
   computed: {
@@ -116,9 +126,17 @@ export default {
         }, 0)
     }
   },
+  watch: {
+      selectDate() {
+        if (this.selectDate != this.data) {
+          this.getData ()
+        }
+      }
+  },
   created () {
     this.getData ()
   },
+  // waf
   methods: {
     getData () {
       let queryMonth = this.selectDate.getFullYear()+'-'+this.selectDate.getMonth()
@@ -155,12 +173,115 @@ export default {
           i++
         })
         this.monthlyIncomes = incomes
+      }),
+      db.collection('income-titles').where('userId', '==', this.currentUser.uid).onSnapshot(querySnapshot => {
+        let amountsArray = []
+          querySnapshot.forEach(doc => {
+            let title = doc.data().name
+            db.collection('incomes')
+              .where("monthId", "==", queryMonth)
+              .where("userId", "==", this.$store.state.currentUser.uid)
+              .where("title", "==", title)
+              .orderBy('createdOn', 'desc')
+              .onSnapshot(querySnapshot =>{
+              const incomes = []
+              let i = 0
+                querySnapshot.forEach((doc)=>{
+                  let amount = doc.data().account.amount
+                  incomes.push(amount)
+                  i++
+                })
+                function getSum(total, num) {
+                    return total + Math.round(num);
+                }
+                amountsArray.push({
+                  title: title,
+                  incomes: incomes.reduce(getSum, 0)
+                })
+              })
+              this.incomeTotals = amountsArray
+            })
+      }),
+      db.collection('incomes')
+        .where("monthId", "==", queryMonth)
+        .where("userId", "==", this.$store.state.currentUser.uid)
+        .orderBy('createdOn', 'desc')
+        .onSnapshot(querySnapshot =>{
+        const incomes = []
+        const incomesArray = []
+        let i = 0
+        querySnapshot.forEach((doc)=>{
+          incomesArray.push(doc.data())
+          incomesArray[i].id = doc.id
+          incomes.push(incomesArray[i])
+          i++
+        })
+        this.cashTitleTotals = incomes
       })
     },
-    editIncome (income) {
-      this.editDate.date = new Date(income.account.date.toDate())
-      this.dialogVisibleEdit = true
-      this.editIncomeData  = income
+    editIncome (name, income) {
+      // let date = new Date(income.account.date.toDate())
+      let editIncomeData  = income
+        this.$store.commit('navigator/options', {
+          // Sets animations
+          animation: name,
+          accountData: editIncomeData,
+          editDate: {
+            date: new Date(editIncomeData.account.date.toDate())
+          },
+          // Resets default options
+          callback: () => this.$store.commit('navigator/options', {})
+        });
+        this.$store.commit('navigator/push', {
+          extends: Edit,
+          data() {
+            return {
+              animation: name,
+              accountData: editIncomeData,
+              editDate: {
+                date: new Date(editIncomeData.account.date.toDate())
+              },
+              typeTitle: "Income"
+            }
+          }
+        });
+    },
+    viewTitle(name, title, date) {
+      this.$store.commit('navigator/options', {
+        // Sets animations
+        animation: name,
+        title: title,
+        selectDate: date,
+        // Resets default options
+        callback: () => this.$store.commit('navigator/options', {})
+      });
+      this.$store.commit('navigator/push', {
+        extends: ShowTitle,
+        data() {
+          return {
+            animation: name,
+            title: title,
+            selectDate: date,
+            collection: "incomes"
+          }
+        }
+      });
+    },
+    create(name) {
+      this.$store.commit('navigator/options', {
+        // Sets animations
+        animation: name,
+        // Resets default options
+        callback: () => this.$store.commit('navigator/options', {})
+      });
+      this.$store.commit('navigator/push', {
+        extends: Create,
+        data() {
+          return {
+            animation: name
+          }
+        }
+      });
     }
   }
 }
@@ -169,5 +290,8 @@ export default {
 <style scoped>
   .left {
     max-width: 100px;
+  }
+  .calendar {
+    min-height: 350px;
   }
 </style>

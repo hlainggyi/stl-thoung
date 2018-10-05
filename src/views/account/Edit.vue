@@ -1,12 +1,13 @@
 <template>
 <v-ons-page v-if="accountData != ''">
+  <custom-toolbar backLabel="Anim" :title="'Edit'">
+    <template slot="right">
+      <v-ons-icon style="color:white" icon="md-check" v-show="typeTitle == 'Income'" @click="editIncome"></v-ons-icon>
+      <v-ons-icon style="color:white" icon="md-check" v-show="typeTitle == 'Expense'" @click="editExpense"></v-ons-icon>
+    </template>
+  </custom-toolbar>
   <v-ons-card>
     <v-ons-list>
-      <v-ons-list-item>
-        <div class="right">
-          <v-ons-icon @click="$emit('close')" class="close_btn" icon="md-close-circle"></v-ons-icon>
-        </div>
-      </v-ons-list-item>
       <v-ons-list-item>
         <v-date-picker mode='single' v-model='editDate.date'>
           <b-field slot-scope='props'>
@@ -16,28 +17,32 @@
         </v-date-picker>
       </v-ons-list-item>
       <v-ons-list-item>
-        <b-field>
+        <b-field style="width: 100%">
           <b-input placeholder="Amount" v-model="accountData.account.amount" type="number"></b-input>
         </b-field>
       </v-ons-list-item>
       <v-ons-list-item>
-        <b-field>
+        <b-field style="width: 100%">
           <b-input placeholder="Description" v-model="accountData.account.description"></b-input>
         </b-field>
       </v-ons-list-item>
       <v-ons-list-item>
         <div class="block">
-          <b-radio v-model="typeTitle" native-value="Income">
-            Income
-          </b-radio>
-          <b-radio v-model="typeTitle" native-value="Expense">
-            Expense
-          </b-radio>
+          <span v-show="typeTitle == 'Income'">
+            <b-radio v-model="typeTitle" native-value="Income">
+              Income
+            </b-radio>
+          </span>
+          <span v-show="typeTitle == 'Expense'">
+            <b-radio v-model="typeTitle" native-value="Expense">
+              Expense
+            </b-radio>
+          </span>
         </div>
       </v-ons-list-item>
       <v-ons-list-item v-show="selectTitle">
         <b-field style="width: 100%">
-          <b-select v-model="accountData.account.title" expanded placeholder="Select ..">
+          <b-select v-model="accountData.title" expanded placeholder="Select ..">
             <option v-for="cashTitleIncome in cashTitleIncomes" :key="cashTitleIncome.name" v-if="typeTitle == 'Income'">
               {{ cashTitleIncome.name }}
             </option>
@@ -76,10 +81,6 @@
           </b-select>
         </b-field>
       </v-ons-list-item>
-      <v-ons-list-item>
-        <v-ons-button modifier="large" class="button-margin fab-btn" v-show="typeTitle == 'Income'" @click="editIncome">Save Income</v-ons-button>
-        <v-ons-button modifier="large" class="button-margin fab-btn" v-show="typeTitle == 'Expense'" @click="editExpense">Save Expense</v-ons-button>
-      </v-ons-list-item>
     </v-ons-list>
   </v-ons-card>
 </v-ons-page>
@@ -93,7 +94,6 @@ import {
   db
 } from '@/firebaseConfig'
 export default {
-  props: ['accountData', 'typeTitle', 'editDate'],
   data() {
     return {
       incomePage: true,
@@ -167,15 +167,15 @@ export default {
       accountRef.update({
         account: {
           date: this.editDate.date,
-          title: this.accountData.account.title, // Cash Title
           payment_type: this.accountData.account.payment_type, // Cash or Bank
           amount: this.accountData.account.amount, // Amount
           description: this.accountData.account.description // Description
         },
+        title: this.accountData.title, // Cash Title
         queryDay: this.editDate.date.getDate(),
         monthId: this.editDate.date.getFullYear() + '-' + this.editDate.date.getMonth()
       })
-      this.$emit('close')
+      this.$store.commit('navigator/pop')
     },
     editExpense: function() {
       var accountRef = db.collection("expenses").doc(this.accountData.id);
@@ -183,15 +183,15 @@ export default {
       accountRef.update({
         account: {
           date: this.editDate.date,
-          title: this.accountData.account.title, // Cash Title
           payment_type: this.accountData.account.payment_type, // Cash or Bank
           amount: this.accountData.account.amount, // Amount
           description: this.accountData.account.description // Description
         },
+        title: this.accountData.title, // Cash Title
         queryDay: this.editDate.date.getDate(),
         monthId: this.editDate.date.getFullYear() + '-' + this.editDate.date.getMonth()
       })
-      this.$emit('close')
+      this.$store.commit('navigator/pop')
     }
   },
   filters: {

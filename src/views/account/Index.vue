@@ -7,15 +7,9 @@
         position='bottom right'
         modifier='mini'
         class="fab-btn"
-        @click="dialogVisible = true">
+        @click="create(animation)">
       <v-ons-icon icon="md-plus"></v-ons-icon>
     </v-ons-fab>
-
-    <v-ons-dialog
-      :visible.sync="dialogVisible"
-    >
-      <create-account  v-on:close="dialogVisible = false"></create-account>
-    </v-ons-dialog>
   </v-ons-page>
 </template>
 
@@ -26,20 +20,16 @@ import createAccount from '@/views/account/Create.vue'
 import Today from '@/views/account/Today.vue'
 import ShweTheeLay from '@/views/account/ShweTheeLay.vue'
 import Thoun from '@/views/account/Thoun.vue'
+import Create from '@/views/account/Create.vue'
 export default {
   components: {createAccount, Today, ShweTheeLay, Thoun},
   data () {
     return {
-      dialogVisible: false,
       animation: 'default',
-
       totalIncomes: [],
       totalExpenses: [],
       date: new Date(Date.now())
     };
-  },
-  created (){
-    this.getData()
   },
   computed: {
     IncomeTotal() {
@@ -57,8 +47,21 @@ export default {
     }
   },
   methods: {
-    getData () {
-
+    create(name) {
+      this.$store.commit('navigator/options', {
+        // Sets animations
+        animation: name,
+        // Resets default options
+        callback: () => this.$store.commit('navigator/options', {})
+      });
+      this.$store.commit('navigator/push', {
+        extends: Create,
+        data() {
+          return {
+            animation: name
+          }
+        }
+      });
     }
   }
 }
@@ -74,11 +77,6 @@ export default {
 .right-icon {
   float: right;
   padding-right:20px;
-}
-.dialog {
-  width: 90%;
-  height: 97%;
-  margin-top: 10px;
 }
 .fab-btn {
   color: #FFFFFF;
